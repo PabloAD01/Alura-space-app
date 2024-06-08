@@ -1,8 +1,10 @@
+import { useContext } from "react";
 import styled from "styled-components";
 import Titulo from "../Titulo";
 import Tag from "./Tags";
 import Populares from "./Populares";
 import Imagen from "./Imagen";
+import { GlobalContext } from "../../context/GlobalContextProvider";
 
 const GaleriaContainer = styled.div`
   display: flex;
@@ -20,12 +22,17 @@ const ImagenesContainer = styled.section`
   gap: 24px;
 `;
 
-const Galeria = ({
-  fotos = [],
-  alSeleccionarFoto,
-  alternarFavorito,
-  setTag,
-}) => {
+const Galeria = () => {
+  const {
+    fotosDeGaleria,
+    setTag,
+    setFotoSeleccionada,
+    alternarFavorito,
+    consulta,
+  } = useContext(GlobalContext);
+
+  console.log("fotos de galeria", fotosDeGaleria);
+
   return (
     <>
       <Tag setTag={setTag} />
@@ -33,15 +40,31 @@ const Galeria = ({
         <SeccionFluida>
           <Titulo>Navegue por la galería</Titulo>
           <ImagenesContainer>
-            {fotos.map((foto) => (
-              <Imagen
-                alSolicitarZoom={alSeleccionarFoto}
-                alternarFavorito={alternarFavorito}
-                key={foto.id}
-                foto={foto}
-                expandida={false}
-              />
-            ))}
+            {fotosDeGaleria
+              .filter((foto) => {
+                return (
+                  consulta == "" ||
+                  foto.titulo
+                    .toLocaleLowerCase()
+                    .normalize("NFD")
+                    .replace(/\p{Diacritic}/gu, "")
+                    .includes(
+                      consulta
+                        .toLocaleLowerCase()
+                        .normalize("NFD")
+                        .replace(/\p{Diacritic}/gu, "")
+                    )
+                );
+              })
+              .map((foto) => (
+                <Imagen
+                  alSolicitarZoom={(foto) => setFotoSeleccionada(foto)}
+                  alternarFavorito={alternarFavorito}
+                  key={foto.id}
+                  foto={foto}
+                  expandida={false}
+                />
+              ))}
           </ImagenesContainer>
         </SeccionFluida>
         <Populares />

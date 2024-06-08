@@ -4,10 +4,10 @@ import Cabecera from "./components/Cabecera";
 import BarraLateral from "./components/BarraLateral";
 import Banner from "./components/Banner";
 import Galeria from "./components/Galeria";
-import fotos from "./fotos.json";
-import { useEffect, useState } from "react";
+
 import ModalZoom from "./components/ModalZoom";
 import Pie from "./components/Pie";
+import GlobalContextProvider from "./context/GlobalContextProvider";
 
 export const opcionesBarraLateral = [
   {
@@ -81,71 +81,27 @@ const ContenidoGaleria = styled.section`
 `;
 
 const App = () => {
-  const [fotosDeGaleria, setFotosDeGaleria] = useState(fotos);
-  const [fotoSeleccionada, setFotoSeleccionada] = useState(null);
-  const [filtro, setFiltro] = useState("");
-  const [tag, setTag] = useState(0);
-
-  useEffect(() => {
-    const filtrarFotos = fotos.filter((foto) => {
-      const filtroTag = !tag || foto.tagId === tag;
-      const filtroTitulo =
-        !filtro || foto.titulo.toLowerCase().includes(filtro.toLowerCase());
-      return filtroTag && filtroTitulo;
-    });
-
-    setFotosDeGaleria(filtrarFotos);
-  }, [filtro, tag]);
-
-  const alternarFavorito = (foto) => {
-    if (foto.id === fotoSeleccionada?.id) {
-      setFotoSeleccionada({
-        ...fotoSeleccionada,
-        favorito: !fotoSeleccionada.favorito,
-      });
-    }
-
-    setFotosDeGaleria(
-      fotosDeGaleria.map((fotoDeGaleria) => {
-        return {
-          ...fotoDeGaleria,
-          favorito:
-            fotoDeGaleria.id === foto.id
-              ? !fotoDeGaleria.favorito
-              : fotoDeGaleria.favorito,
-        };
-      })
-    );
-  };
-
   return (
     <>
       <FondoGradiente>
         <GlobalStyles />
-        <AppContainer>
-          <Cabecera filtro={filtro} setFiltro={setFiltro} />
-          <MainContainer>
-            <BarraLateral />
-            <ContenidoGaleria>
-              <Banner
-                texto="La galería más completa del espacio"
-                backgroundImage="../../assets/banner.png"
-              />
-              <Galeria
-                alSeleccionarFoto={(foto) => setFotoSeleccionada(foto)}
-                fotos={fotosDeGaleria}
-                alternarFavorito={alternarFavorito}
-                setTag={setTag}
-              />
-            </ContenidoGaleria>
-          </MainContainer>
-        </AppContainer>
-        <Pie />
-        <ModalZoom
-          foto={fotoSeleccionada}
-          alCerrar={() => setFotoSeleccionada(null)}
-          alternarFavorito={alternarFavorito}
-        />
+        <GlobalContextProvider>
+          <AppContainer>
+            <Cabecera />
+            <MainContainer>
+              <BarraLateral />
+              <ContenidoGaleria>
+                <Banner
+                  texto="La galería más completa del espacio"
+                  backgroundImage="../../assets/banner.png"
+                />
+                <Galeria />
+              </ContenidoGaleria>
+            </MainContainer>
+          </AppContainer>
+          <Pie />
+          <ModalZoom />
+        </GlobalContextProvider>
       </FondoGradiente>
     </>
   );

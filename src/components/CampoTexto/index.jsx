@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import search from "./search.png";
+import { useRef } from "react";
 const ContainerEstilizado = styled.div`
   position: relative;
   display: inline-block;
@@ -30,14 +31,20 @@ const IconoLupa = styled.img`
 `;
 
 const CampoTexto = ({ setFiltro }) => {
+  const handleFilter = useRef(null);
+
   return (
     <ContainerEstilizado>
       <CampoTextoEstilizado
+        ref={handleFilter}
         type="text"
         placeholder="¿Que estás buscando?"
-        onChange={(e) => setFiltro(e.target.value)}
       />
-      <IconoLupa src={search} alt="Lupa" />
+      <IconoLupa
+        onClick={() => setFiltro(handleFilter.current.value)}
+        src={search}
+        alt="Lupa"
+      />
     </ContainerEstilizado>
   );
 };
