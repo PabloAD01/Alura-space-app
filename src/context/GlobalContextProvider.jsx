@@ -1,12 +1,61 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, {
+  act,
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 
 export const GlobalContext = createContext();
 
+const initialState = {
+  consulta: "",
+  fotoSeleccionada: null,
+  fotosDeGaleria: [],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "setFotosDeGaleria":
+      return { ...state, fotosDeGaleria: action.payload };
+    case "setFotoSeleccionada":
+      return { ...state, fotoSeleccionada: action.payload };
+    case "setConsulta":
+      return { ...state, consulta: action.payload };
+
+    case "alternarFavorito":
+      const fotosDeGaleria = state.fotosDeGaleria.map((fotoDeGaleria) => {
+        return {
+          ...fotoDeGaleria,
+          favorito:
+            fotoDeGaleria.id === action.payload.id
+              ? !action.payload.favorito
+              : fotoDeGaleria.favorito,
+        };
+      });
+      if (action.payload.id === state.fotoSeleccionada?.id) {
+        return {
+          ...state,
+          fotosDeGaleria: fotosDeGaleria,
+          fotoSeleccionada: {
+            ...state.fotoSeleccionada,
+            favorito: !state.fotoSeleccionada.favorito,
+          },
+        };
+      } else {
+        return {
+          ...state,
+          fotosDeGaleria: fotosDeGaleria,
+        };
+      }
+
+    default:
+      return state;
+  }
+};
+
 const GlobalContextProvider = ({ children }) => {
-  const [fotosDeGaleria, setFotosDeGaleria] = useState([]);
-  const [fotoSeleccionada, setFotoSeleccionada] = useState(null);
-  const [consulta, setConsulta] = useState("");
-  const [tag, setTag] = useState(0);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     const cargarFotos = async () => {
@@ -14,7 +63,7 @@ const GlobalContextProvider = ({ children }) => {
         const response = await fetch("http://localhost:3000/fotos");
         const data = await response.json();
         console.log(data);
-        setFotosDeGaleria([...data]);
+        dispatch({ type: "setFotosDeGaleria", payload: data });
       } catch (error) {}
     };
 
@@ -23,66 +72,8 @@ const GlobalContextProvider = ({ children }) => {
     }, 2000);
   }, []);
 
-  /*  useEffect(() => {
-    const filtrarFotos = fotosDeGaleria.filter((foto) => {
-      const filtroTag = !tag || foto.tagId === tag;
-      const filtroTitulo =
-        !filtro ||
-        foto.titulo
-          .toLocaleLowerCase()
-          .normalize("NFD")
-          .replace(/\p{Diacritic}/gu, "")
-          .includes(
-            filtro
-              .toLocaleLowerCase()
-              .normalize("NFD")
-              .replace(/\p{Diacritic}/gu, "")
-          );
-
-      return filtroTag && filtroTitulo;
-    });
-
-    setFotosDeGaleria(filtrarFotos);
-    console.log("Filtro", filtro);
-    console.log(filtrarFotos);
-    console.log("Tag", tag);
-  }, [filtro, tag]); */
-
-  const alternarFavorito = (foto) => {
-    if (foto.id === fotoSeleccionada?.id) {
-      setFotoSeleccionada({
-        ...fotoSeleccionada,
-        favorito: !fotoSeleccionada.favorito,
-      });
-    }
-
-    setFotosDeGaleria(
-      fotosDeGaleria.map((fotoDeGaleria) => {
-        return {
-          ...fotoDeGaleria,
-          favorito:
-            fotoDeGaleria.id === foto.id
-              ? !fotoDeGaleria.favorito
-              : fotoDeGaleria.favorito,
-        };
-      })
-    );
-  };
-
   return (
-    <GlobalContext.Provider
-      value={{
-        fotosDeGaleria,
-        setFotosDeGaleria,
-        fotoSeleccionada,
-        setFotoSeleccionada,
-        consulta,
-        setConsulta,
-        tag,
-        setTag,
-        alternarFavorito,
-      }}
-    >
+    <GlobalContext.Provider value={{ state, dispatch }}>
       {children}
     </GlobalContext.Provider>
   );

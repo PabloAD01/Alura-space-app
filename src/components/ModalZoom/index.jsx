@@ -32,23 +32,20 @@ const DialogEstilizado = styled.dialog`
 `;
 
 const Modal = () => {
-  const { fotoSeleccionada, alternarFavorito, setFotoSeleccionada } =
-    useContext(GlobalContext);
+  const { state, dispatch } = useContext(GlobalContext);
 
   return (
     <>
-      {fotoSeleccionada && (
+      {state.fotoSeleccionada && (
         <>
           <Overlay />
           <DialogEstilizado
-            open={!!fotoSeleccionada}
-            onClose={() => setFotoSeleccionada(null)}
+            open={!!state.fotoSeleccionada}
+            onClose={() =>
+              dispatch({ type: "setFotoSeleccionada", payload: null })
+            }
           >
-            <Imagen
-              expandida={true}
-              foto={fotoSeleccionada}
-              alternarFavorito={alternarFavorito}
-            />
+            <Imagen expandida={true} foto={state.fotoSeleccionada} />
             <form method="dialog">
               <BotonIcono formMethod="dialog">
                 <img src="/iconos/cerrar.png" alt="Ícono de cerrar" />

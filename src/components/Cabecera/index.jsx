@@ -14,12 +14,10 @@ const HeaderEstilizado = styled.header`
 `;
 
 const Cabecera = () => {
-  const { setFiltro } = useContext(GlobalContext);
-
   return (
     <HeaderEstilizado>
       <img src="imagenes/logo.png" alt="Logo de Space App" />
-      <CampoTexto setFiltro={setFiltro} />
+      <CampoTexto />
     </HeaderEstilizado>
   );
 };

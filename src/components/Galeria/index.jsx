@@ -23,15 +23,9 @@ const ImagenesContainer = styled.section`
 `;
 
 const Galeria = () => {
-  const {
-    fotosDeGaleria,
-    setTag,
-    setFotoSeleccionada,
-    alternarFavorito,
-    consulta,
-  } = useContext(GlobalContext);
+  const { setTag } = useContext(GlobalContext);
 
-  console.log("fotos de galeria", fotosDeGaleria);
+  const { state, dispatch } = useContext(GlobalContext);
 
   return (
     <>
@@ -40,16 +34,16 @@ const Galeria = () => {
         <SeccionFluida>
           <Titulo>Navegue por la galería</Titulo>
           <ImagenesContainer>
-            {fotosDeGaleria
+            {state.fotosDeGaleria
               .filter((foto) => {
                 return (
-                  consulta == "" ||
+                  state.consulta == "" ||
                   foto.titulo
                     .toLocaleLowerCase()
                     .normalize("NFD")
                     .replace(/\p{Diacritic}/gu, "")
                     .includes(
-                      consulta
+                      state.consulta
                         .toLocaleLowerCase()
                         .normalize("NFD")
                         .replace(/\p{Diacritic}/gu, "")
@@ -57,13 +51,7 @@ const Galeria = () => {
                 );
               })
               .map((foto) => (
-                <Imagen
-                  alSolicitarZoom={(foto) => setFotoSeleccionada(foto)}
-                  alternarFavorito={alternarFavorito}
-                  key={foto.id}
-                  foto={foto}
-                  expandida={false}
-                />
+                <Imagen key={foto.id} foto={foto} expandida={false} />
               ))}
           </ImagenesContainer>
         </SeccionFluida>

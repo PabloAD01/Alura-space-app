@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import search from "./search.png";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
+import { GlobalContext } from "../../context/GlobalContextProvider";
 const ContainerEstilizado = styled.div`
   position: relative;
   display: inline-block;
@@ -30,8 +31,10 @@ const IconoLupa = styled.img`
   height: 38px;
 `;
 
-const CampoTexto = ({ setFiltro }) => {
+const CampoTexto = () => {
   const handleFilter = useRef(null);
+
+  const { dispatch } = useContext(GlobalContext);
 
   return (
     <ContainerEstilizado>
@@ -41,7 +44,9 @@ const CampoTexto = ({ setFiltro }) => {
         placeholder="¿Que estás buscando?"
       />
       <IconoLupa
-        onClick={() => setFiltro(handleFilter.current.value)}
+        onClick={() =>
+          dispatch({ type: "setConsulta", payload: handleFilter.current.value })
+        }
         src={search}
         alt="Lupa"
       />
